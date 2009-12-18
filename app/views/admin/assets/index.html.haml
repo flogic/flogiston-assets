@@ -8,7 +8,7 @@
   %tbody
     - @assets.each do |asset|
       %tr.body
-        %td= asset.data_file_name
+        %td= link_to asset.data_file_name, asset_path(asset)
         %td= asset.data_content_type
         %td= asset.data_file_size
         %td.actions
