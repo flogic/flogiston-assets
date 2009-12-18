@@ -1,0 +1,16 @@
+%table#assets
+  %thead
+    %tr.header
+      %th file name
+      %th content type
+      %th file size
+      %th actions
+  %tbody
+    - @assets.each do |asset|
+      %tr.body
+        %td= asset.data_file_name
+        %td= asset.data_content_type
+        %td= asset.data_file_size
+        %td.actions
+          = link_to 'edit', edit_admin_asset_path(asset)
+          = link_to 'delete', admin_asset_path(asset), :confirm => 'Are you sure?', :method => :delete
