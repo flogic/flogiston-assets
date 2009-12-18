@@ -1,0 +1,7 @@
+-form_for [:admin, asset], :html => { :multipart => true } do |f|
+  -unless f.error_messages.blank?
+    .errors= f.error_messages
+  .field
+    %label{ :for => 'asset_data' } File:
+    =f.file_field :data
+  .submit= f.submit 'Submit'
