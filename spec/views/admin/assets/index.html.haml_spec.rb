@@ -66,6 +66,17 @@ describe 'admin/assets/index.html.haml' do
       end
     end
     
+    it 'should link to directly view the asset' do
+      do_render
+      response.should have_tag('table[id=?]', 'assets') do
+        with_tag('tbody') do
+          with_tag('tr') do
+            with_tag('a[href=?]', @asset.data.url)
+          end
+        end
+      end
+    end
+    
     it 'should link to edit the asset' do
       do_render
       response.should have_tag('table[id=?]', 'assets') do
