@@ -12,10 +12,8 @@ def readme_contents
   IO.read(plugin_path('README.markdown'))
 end
 
-Dir[File.join(plugin_path('db/migrate'), '*.rb')].each do |migration|
-  puts "Installing plugin migration #{migration} to #{rails_path('db/migrate')}..."
-  FileUtils.copy(migration, rails_path('db/migrate'))
-end
+puts "Installing plugin migrations"
+FileUtils.cp_r(plugin_path('db/migrate'), rails_path('db'))
 
 # run our Rails template to ensure needed gems and plugins are installed
 system("rake rails:template LOCATION=#{plugin_path('templates/plugin-install.rb')}")

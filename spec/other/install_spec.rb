@@ -11,7 +11,7 @@ end
 
 describe 'the plugin install.rb script' do
   before :each do
-    FileUtils.stubs(:copy)
+    FileUtils.stubs(:cp_r)
     self.stubs(:system).returns(true)
     self.stubs(:puts).returns(true)
   end
@@ -21,9 +21,7 @@ describe 'the plugin install.rb script' do
   end
   
   it "should copy the plugin's db migrations to the RAILS_ROOT db/migrate directory" do
-    Dir[File.join(plugin_path('db/migrate'), '*.rb')].each do |migration|
-      FileUtils.expects(:copy).with(migration, rails_path('db/migrate'))
-    end
+    FileUtils.expects(:cp_r).with(plugin_path('db/migrate'), rails_path('db'))
     do_install
   end
   
