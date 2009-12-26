@@ -11,12 +11,20 @@ end
 
 describe 'the plugin install.rb script' do
   before :each do
+    FileUtils.stubs(:copy)
     self.stubs(:system).returns(true)
     self.stubs(:puts).returns(true)
   end
 
   def do_install
     eval File.read(File.join(File.dirname(__FILE__), *%w[.. .. install.rb ]))
+  end
+  
+  it "should copy the plugin's db migrations to the RAILS_ROOT db/migrate directory" do
+    Dir[File.join(plugin_path('db/migrate'), '*.rb')].each do |migration|
+      FileUtils.expects(:copy).with(migration, rails_path('db/migrate'))
+    end
+    do_install
   end
   
   it 'should have rails run the plugin installation template' do
