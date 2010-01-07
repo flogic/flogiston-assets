@@ -6,11 +6,15 @@ describe Asset do
   end
   
   describe 'attributes' do
+    it 'should have a handle' do
+      @asset.should respond_to(:handle)
+    end
+    
     it 'should have data' do
       @asset.should respond_to(:data)
     end
     
-    describe 'support data attachment' do
+    describe 'supporting data attachment' do
       it 'should have a data file name' do
         @asset.should respond_to(:data_file_name)
       end
