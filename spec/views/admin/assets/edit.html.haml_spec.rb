@@ -33,6 +33,21 @@ describe 'admin/assets/edit.html.haml' do
         with_tag('input[type=?][name=?]', 'file', 'asset[data]')
       end
     end
+    
+    it 'should have a handle input' do
+      do_render
+      response.should have_tag('form[id=?]', "edit_asset_#{@asset.id}") do
+        with_tag('input[type=?][name=?]', 'text', 'asset[handle]')
+      end
+    end
+    
+    it 'should populate the handle input' do
+      @asset.handle = 'some_handle'
+      do_render
+      response.should have_tag('form[id=?]', "edit_asset_#{@asset.id}") do
+        with_tag('input[type=?][name=?][value=?]', 'text', 'asset[handle]', @asset.handle)
+      end
+    end
 
     it 'should have a submit button' do
       do_render

@@ -55,6 +55,16 @@ describe 'admin/assets/index.html.haml' do
       end
     end
     
+    it 'should include the asset handle' do
+      @asset.handle = 'some_test_handle'
+      do_render
+      response.should have_tag('table[id=?]', 'assets') do
+        with_tag('tbody') do
+          with_tag('tr', :text => Regexp.new(Regexp.escape(@asset.handle)))
+        end
+      end
+    end
+    
     it 'should link to view the asset' do
       do_render
       response.should have_tag('table[id=?]', 'assets') do

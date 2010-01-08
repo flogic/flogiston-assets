@@ -31,6 +31,13 @@ describe 'admin/assets/new.html.haml' do
         with_tag('input[type=?][name=?]', 'file', 'asset[data]')
       end
     end
+    
+    it 'should have a handle input' do
+      do_render
+      response.should have_tag('form[id=?]', 'new_asset') do
+        with_tag('input[type=?][name=?]', 'text', 'asset[handle]')
+      end
+    end
 
     it 'should have a submit button' do
       do_render
