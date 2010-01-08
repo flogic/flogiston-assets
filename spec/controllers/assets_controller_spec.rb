@@ -9,6 +9,7 @@ describe AssetsController do
       @data = stub('data', :path => 'path/to/file', :content_type => 'content/type')
       @asset.stubs(:data).returns(@data)
       Asset.stubs(:find).returns(@asset)
+      Asset.stubs(:find_by_handle).returns(nil)
       controller.stubs(:send_file)
     end
     
@@ -16,7 +17,13 @@ describe AssetsController do
       get :show, :id => @asset_id
     end
     
-    it 'should find the requested asset' do
+    it 'should find the requested asset by handle' do
+      Asset.expects(:find_by_handle).with(@asset_id).returns(@asset)
+      do_get
+    end
+    
+    it 'should find the requested asset by ID after the handle search is unsuccessful' do
+      Asset.stubs(:find_by_handle).returns(nil)
       Asset.expects(:find).with(@asset_id).returns(@asset)
       do_get
     end
