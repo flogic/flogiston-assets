@@ -3,5 +3,5 @@ ActionController::Routing::Routes.draw do |map|
     admin.resources :assets
   end
   
-  map.resources :assets, :only => :show
+  map.asset '/assets/*id', :controller => 'assets', :action => 'show'
 end

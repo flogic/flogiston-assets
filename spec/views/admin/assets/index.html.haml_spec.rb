@@ -99,6 +99,18 @@ describe 'admin/assets/index.html.haml' do
       end
     end
     
+    it 'should link to view the asset by handle even with a complex handle' do
+      @asset.handle = 'some/handle/path.ext'
+      do_render
+      response.should have_tag('table[id=?]', 'assets') do
+        with_tag('tbody') do
+          with_tag('tr') do
+            with_tag('a[href=?]', asset_path(@asset.handle))
+          end
+        end
+      end
+    end
+    
     it 'should link to edit the asset' do
       do_render
       response.should have_tag('table[id=?]', 'assets') do
