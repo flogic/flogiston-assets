@@ -52,4 +52,37 @@ describe Asset do
       @asset.errors.should_not be_invalid(:handle)
     end
   end
+  
+  describe 'when created' do
+    it 'should default the handle to the filename if none given' do
+      @asset = Asset.new
+      File.open(File.join(File.dirname(__FILE__), %w[.. spec_helper.rb])) { |file|  @asset.data = file }
+      @asset.save!
+      
+      @asset.reload
+      
+      @asset.handle.should == 'spec_helper.rb'
+    end
+    
+    it 'should default the handle to the filename if a blank handle given' do
+      @asset = Asset.new(:handle => '')
+      File.open(File.join(File.dirname(__FILE__), %w[.. spec_helper.rb])) { |file|  @asset.data = file }
+      @asset.save!
+    
+      @asset.reload
+    
+      @asset.handle.should == 'spec_helper.rb'
+    end
+    
+    it 'should not override a supplied handle with a filename-derived default' do
+      handle = 'some_asset'
+      @asset = Asset.new(:handle => handle)
+      File.open(File.join(File.dirname(__FILE__), %w[.. spec_helper.rb])) { |file|  @asset.data = file }
+      @asset.save!
+    
+      @asset.reload
+    
+      @asset.handle.should == handle
+    end
+  end
 end
