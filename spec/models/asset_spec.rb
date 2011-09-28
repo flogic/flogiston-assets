@@ -197,7 +197,29 @@ describe Asset do
 
       it 'should do nothing for non-file data'
 
-      it 'should not override setting the data directly'
+      it 'should not override setting the data directly' do
+        new_contents = "Something something something something something"
+
+        new_test_file = @test_file + '_but_wait_theres_more'
+        File.open(new_test_file, 'w') do |file|
+          file.puts 'crip crap crup'
+        end
+
+        expected_name = File.basename(new_test_file)
+        expected_contents = nil
+        File.open(new_test_file) { |file|  expected_contents = file.read }
+        expected_size = expected_contents.length
+        expected_type = 'text/plain'
+
+        @asset.update_attributes!(:contents => new_contents, :data => File.open(new_test_file))
+
+        @asset.contents.should == expected_contents
+        @asset.data_file_name.should == expected_name
+        @asset.data_file_size.should == expected_size
+        @asset.data_content_type.should == expected_type
+
+        File.unlink(new_test_file)
+      end
     end
   end
 end

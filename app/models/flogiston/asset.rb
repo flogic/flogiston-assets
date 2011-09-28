@@ -15,6 +15,7 @@ class Flogiston::Asset < ActiveRecord::Base
   def contents=(val)
     return if new_record?
     return unless data.file?
+    return if data.dirty?
 
     File.open(data.path, 'w') do |f|
       f.print val
