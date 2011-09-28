@@ -12,6 +12,15 @@ class Flogiston::Asset < ActiveRecord::Base
     data.to_file.read
   end
 
+  def contents=(val)
+    return if new_record?
+    return unless data.file?
+
+    File.open(data.path, 'w') do |f|
+      f.print val
+    end
+    self.data_file_size = val.length
+  end
 
   private
 

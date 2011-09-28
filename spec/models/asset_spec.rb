@@ -112,6 +112,92 @@ describe Asset do
 
       it 'should return nil for non-file data'
     end
-  end
 
+    it "should have a 'contents' setter method" do
+      @asset.should respond_to(:contents=)
+    end
+
+    describe 'setting contents' do
+      before do
+        @test_file = File.join(File.dirname(__FILE__), %w[.. contents_setting_test_file])
+        File.open(@test_file, 'w') do |file|
+          3.times do
+            file.puts 'blah blah blah'
+            file.puts 'fa fa fa'
+          end
+        end
+
+        @asset = Asset.create!(:data => File.open(@test_file))
+      end
+
+      after do
+        File.unlink(@test_file)
+      end
+
+      it 'should change the asset contents to the given contents' do
+        new_contents = "This is all-new stuff right here.
+          Get excited!
+          Are you excited?"
+        expected = new_contents.dup
+
+        @asset.update_attributes!(:contents => new_contents)
+        @asset.contents.should == expected
+      end
+
+      it 'should update the stored file size' do
+        new_contents = "Something borrowed. Something blue."
+        expected = new_contents.length
+
+        @asset.update_attributes!(:contents => new_contents)
+        @asset.data_file_size.should == expected
+      end
+
+      it 'should not change the file name' do
+        new_contents = "Thinking of something else."
+        expected = @asset.data_file_name.dup
+
+        @asset.update_attributes!(:contents => new_contents)
+        @asset.data_file_name.should == expected
+      end
+
+      it 'should not change the content type' do
+        new_contents = "Something else goes here."
+        expected = @asset.data_content_type.dup
+
+        @asset.update_attributes!(:contents => new_contents)
+        @asset.data_content_type.should == expected
+      end
+
+      it 'should change the actual stored file' do
+        new_contents = "I'm bored of coming up with new data."
+        expected = new_contents.dup
+
+        @asset.update_attributes!(:contents => new_contents)
+
+        file_contents = nil
+        File.open(@asset.data.path) { |file|  file_contents = file.read }
+        file_contents.should == expected
+      end
+
+      # This is troublesome because it doesn't actually operate on the original file,
+      # but instead where it has stored a copy of the file (see the test above to see
+      # the stored file gets changed). Maybe what I should really be doing is testing
+      # that @asset.data.path doesn't point to a file.
+      it 'should do nothing for a new record' do
+        @asset = Asset.new(:data => File.open(@test_file))
+        new_contents = "Will this work?"
+
+        expected = nil
+        File.open(@test_file) { |file|  expected = file.read }
+
+        @asset.contents = new_contents
+        @asset.save!
+        @asset.contents.should == expected
+      end
+
+      it 'should do nothing for non-file data'
+
+      it 'should not override setting the data directly'
+    end
+  end
 end
