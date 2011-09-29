@@ -39,6 +39,21 @@ describe 'admin/assets/new.html.haml' do
       end
     end
 
+    it 'should not have a contents input' do
+      do_render
+      response.should have_tag('form[id=?]', 'new_asset') do
+        without_tag('textarea[name=?]', 'asset[contents]')
+      end
+    end
+
+    it 'should not have a contents input even if the contents are editable' do
+      @asset.stubs(:editable?).returns(true)
+      do_render
+      response.should have_tag('form[id=?]', 'new_asset') do
+        without_tag('textarea[name=?]', 'asset[contents]')
+      end
+    end
+
     it 'should have a submit button' do
       do_render
       response.should have_tag('form[id=?]', 'new_asset') do

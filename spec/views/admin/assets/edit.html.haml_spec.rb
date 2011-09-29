@@ -49,6 +49,41 @@ describe 'admin/assets/edit.html.haml' do
       end
     end
 
+    describe 'when the content is editable' do
+      before do
+        @asset.stubs(:editable?).returns(true)
+      end
+
+      it 'should have a contents input' do
+        do_render
+        response.should have_tag('form[id=?]', "edit_asset_#{@asset.id}") do
+          with_tag('textarea[name=?]', 'asset[contents]')
+        end
+      end
+
+      it 'should populate the contents input' do
+        contents = 'blah de blah blah blah'
+        @asset.stubs(:contents).returns(contents)
+        do_render
+        response.should have_tag('form[id=?]', "edit_asset_#{@asset.id}") do
+          with_tag('textarea[name=?]', 'asset[contents]', contents)
+        end
+      end
+    end
+
+    describe 'when the content is not editable' do
+      before do
+        @asset.stubs(:editable?).returns(false)
+      end
+
+      it 'should not have a contents input' do
+        do_render
+        response.should have_tag('form[id=?]', "edit_asset_#{@asset.id}") do
+          without_tag('textarea[name=?]', 'asset[contents]')
+        end
+      end
+    end
+
     it 'should have a submit button' do
       do_render
       response.should have_tag('form[id=?]', "edit_asset_#{@asset.id}") do

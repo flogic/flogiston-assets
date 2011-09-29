@@ -7,4 +7,8 @@
   .field
     %label{ :for => 'asset_data' } File:
     =f.file_field :data
+  -if asset.editable? and !asset.new_record?
+    .field
+      %label{ :for => 'asset_contents' } Contents:
+      =f.text_area :contents
   .submit= f.submit 'Submit'
