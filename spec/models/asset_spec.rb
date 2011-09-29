@@ -247,6 +247,11 @@ describe Asset do
         @asset.should be_editable
       end
 
+      it 'should return true for XHTML' do
+        @asset.data_content_type = 'application/xhtml+xml'
+        @asset.should be_editable
+      end
+
       it 'should return false for PDF' do
         @asset.data_content_type = 'application/pdf'
         @asset.should_not be_editable

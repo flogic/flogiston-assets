@@ -28,6 +28,7 @@ class Flogiston::Asset < ActiveRecord::Base
 
     return true if content_type.match(/^text\//)
     return true if content_type.match(/javascript$/)
+    return true if content_type.match(/xhtml/)
 
     false
   end
