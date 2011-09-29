@@ -221,5 +221,46 @@ describe Asset do
         File.unlink(new_test_file)
       end
     end
+
+    it 'should indicate whether the contents are editable' do
+      @asset.should respond_to(:editable?)
+    end
+
+    describe 'indicating whether the contents are editable' do
+      it 'should return true for plain text' do
+        @asset.data_content_type = 'text/plain'
+        @asset.should be_editable
+      end
+
+      it 'should return true for css' do
+        @asset.data_content_type = 'text/css'
+        @asset.should be_editable
+      end
+
+      it 'should return true for any sort of text content' do
+        @asset.data_content_type = 'text/adsflkjasdf'
+        @asset.should be_editable
+      end
+
+      it 'should return true for javascript' do
+        @asset.data_content_type = 'application/x-javascript'
+        @asset.should be_editable
+      end
+
+      it 'should return false for PDF' do
+        @asset.data_content_type = 'application/pdf'
+        @asset.should_not be_editable
+      end
+
+      it 'should return false for PDF' do
+        @asset.data_content_type = 'crazy/town'
+        @asset.should_not be_editable
+      end
+
+      it 'should return false for unset content type' do
+        @asset.data_content_type = nil
+        @asset.should_not be_editable
+      end
+    end
   end
 end

@@ -23,6 +23,15 @@ class Flogiston::Asset < ActiveRecord::Base
     self.data_file_size = val.length
   end
 
+  def editable?
+    content_type = data_content_type || ''
+
+    return true if content_type.match(/^text\//)
+    return true if content_type.match(/javascript$/)
+
+    false
+  end
+
   private
 
   def set_default_handle
