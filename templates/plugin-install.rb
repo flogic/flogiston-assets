@@ -1,7 +1,5 @@
 plugin 'flogiston', :git => 'git://github.com/flogic/flogiston.git'
 
-plugin 'paperclip', :git => 'git://github.com/thoughtbot/paperclip.git'
-
 Dir["#{RAILS_ROOT}/vendor/plugins/flogiston-assets/app/models/flogiston/*.rb"].each do |f|
   filename = File.basename(f, '.rb')
   model_name = filename.camelize
@@ -15,3 +13,9 @@ end
     eof
   end
 end
+
+gem 'paperclip'
+
+rake 'gems:install'
+rake 'gems:unpack'
+rake 'gems:build'
