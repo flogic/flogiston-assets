@@ -14,6 +14,22 @@ end
   end
 end
 
+Dir["#{RAILS_ROOT}/vendor/plugins/flogiston-assets/app/controllers/flogiston/**/*.rb"].each do |f|
+  # not basename, since I want to preserve the subdir
+  filename = f.sub(Regexp.new("^#{RAILS_ROOT}/vendor/plugins/flogiston-assets/app/controllers/flogiston/"), '')
+  filename.sub!(/\.rb$/, '')
+  controller_name = filename.camelize
+
+  if File.exist?("app/controllers/#{filename}.rb")
+    puts "*** controller #{filename}.rb exists. Ensure it defines #{controller_name} < Flogiston::#{controller_name}. ***"
+  else
+    file "app/controllers/#{filename}.rb", <<-eof
+class #{controller_name} < Flogiston::#{controller_name}
+end
+    eof
+  end
+end
+
 gem 'paperclip'
 
 rake 'gems:install'
