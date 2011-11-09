@@ -1,4 +1,4 @@
-class Admin::AssetsController < AdminController
+class Flogiston::Admin::AssetsController < AdminController
   def index
     @assets = Asset.all
   end

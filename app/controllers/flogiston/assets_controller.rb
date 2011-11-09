@@ -1,4 +1,4 @@
-class AssetsController < ApplicationController
+class Flogiston::AssetsController < ApplicationController
   def show
     param = params[:id].join('/')
     asset = Asset.find_by_handle(param)
