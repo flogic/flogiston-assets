@@ -144,6 +144,33 @@ describe Asset do
     end
   end
 
+  it 'should indicate whether s3 storage is used' do
+    @asset.should respond_to(:s3?)
+  end
+
+  describe 'indicating whether s3 storage is used' do
+    before do
+      @options = stub('options')
+      @data = stub('data', :options => @options)
+      @asset.stubs(:data).returns(@data)
+    end
+
+    it 'should get the storage value from the data options' do
+      @options.expects(:storage)
+      @asset.s3?
+    end
+
+    it 'should return true if the storage value is :s3' do
+      @options.stubs(:storage).returns(:s3)
+      @asset.s3?.should == true
+    end
+
+    it 'should return false if the storage value is not :s3' do
+      @options.stubs(:storage).returns(:something)
+      @asset.s3?.should == false
+    end
+  end
+
   describe 'to support direct editing' do
     it "should have a 'contents' attribute" do
       @asset.should respond_to(:contents)

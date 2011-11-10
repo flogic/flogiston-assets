@@ -44,6 +44,11 @@ class Flogiston::Asset < ActiveRecord::Base
     false
   end
 
+  def s3?
+    data.options.storage == :s3
+  end
+
+
   private
 
   def set_default_handle
