@@ -30,6 +30,11 @@ end
   end
 end
 
+file 'app/helpers/assets_helper.rb', <<-eof
+module AssetsHelper
+end
+eof
+
 gem 'paperclip'
 
 rake 'gems:install'
