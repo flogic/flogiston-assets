@@ -1,6 +1,13 @@
 require File.expand_path(File.join(File.dirname(__FILE__), %w[.. spec_helper]))
 
 describe Asset do
+  def reset_model
+    Object.send(:remove_const, :Asset)
+    Flogiston.send(:remove_const, :Asset)
+    load "#{RAILS_ROOT}/vendor/plugins/flogiston-assets/app/models/flogiston/asset.rb"
+    load "#{RAILS_ROOT}/app/models/asset.rb"
+  end
+
   before :each do
     @asset = Asset.new
   end
@@ -83,6 +90,57 @@ describe Asset do
       @asset.reload
     
       @asset.handle.should == handle
+    end
+  end
+
+  describe 'data options' do
+    describe 'when config options are set for s3' do
+      before do
+        [:ASSET_STORAGE, :ASSET_S3_BUCKET].each do |const|
+          Object.send(:remove_const, const) if Object.const_defined?(const)
+        end
+
+        Object.const_set(:ASSET_STORAGE, :s3)
+        Object.const_set(:ASSET_S3_BUCKET, 'flogiston-assets-test')
+
+        reset_model
+        @asset = Asset.new
+      end
+
+      after do
+        [:ASSET_STORAGE, :ASSET_S3_BUCKET].each do |const|
+          Object.send(:remove_const, const) if Object.const_defined?(const)
+        end
+      end
+
+      it 'should use s3 storage' do
+        @asset.data.options.storage.should == :s3
+      end
+
+      it 'should look for s3 credentials in config/s3.yml' do
+        @asset.data.options.s3_credentials.should == "#{RAILS_ROOT}/config/s3.yml"
+      end
+
+      it 'should set the path' do
+        @asset.data.options.path.should == ':attachment/:id/:style/:basename.:extension'
+      end
+
+      it 'should set the bucket from the associated constant' do
+        @asset.data.options.bucket.should == 'flogiston-assets-test'
+      end
+    end
+
+    describe 'when config options are not set' do
+      before do
+        Object.send(:remove_const, :ASSET_STORAGE) if Object.const_defined?(:ASSET_STORAGE)
+
+        reset_model
+        @asset = Asset.new
+      end
+
+      it 'should use filesystem storage' do
+        @asset.data.options.storage.should == :filesystem
+      end
     end
   end
 
