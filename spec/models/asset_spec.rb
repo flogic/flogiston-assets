@@ -177,20 +177,27 @@ describe Asset do
     end
 
     describe 'contents' do
-      it 'should return the contents of the data file' do
+      before do
         @asset = Asset.new
-        File.open(File.join(File.dirname(__FILE__), %w[.. spec_helper.rb])) { |file|  @asset.data = file }
+        @file_path = File.join(File.dirname(__FILE__), %w[.. spec_helper.rb])
+      end
+
+      after do
+        @asset.destroy
+      end
+
+      it 'should return the contents of the data file' do
+        File.open(@file_path) { |file|  @asset.data = file }
         @asset.save!
 
         expected = nil
-        File.open(File.join(File.dirname(__FILE__), %w[.. spec_helper.rb])) { |file|  expected = file.read }
+        File.open(@file_path) { |file|  expected = file.read }
 
         @asset.contents.should == expected
       end
 
       it 'should return nil for a new record' do
-        @asset = Asset.new
-        File.open(File.join(File.dirname(__FILE__), %w[.. spec_helper.rb])) { |file|  @asset.data = file }
+        File.open(@file_path) { |file|  @asset.data = file }
 
         @asset.contents.should == nil
       end
