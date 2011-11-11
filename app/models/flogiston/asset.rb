@@ -28,9 +28,14 @@ class Flogiston::Asset < ActiveRecord::Base
     return unless data.file?
     return if data.dirty?
 
-    File.open(data.path, 'w') do |f|
-      f.print val
-    end
+    tf = Tempfile.new(data_file_name)
+    tf.binmode
+    tf.write(val)
+    tf.rewind
+
+    data.queued_for_write[:original] = tf
+    data.flush_writes
+
     self.data_file_size = val.length
   end
 
