@@ -1,5 +1,16 @@
 class Flogiston::Asset < ActiveRecord::Base
-  has_attached_file :data
+
+  ATTACHED_FILE_OPTIONS = { :storage => :filesystem }
+  if Object.const_defined?(:ASSET_STORAGE)
+    ATTACHED_FILE_OPTIONS[:storage] = ASSET_STORAGE
+
+    if ASSET_STORAGE == :s3
+      ATTACHED_FILE_OPTIONS[:s3_credentials] = "#{RAILS_ROOT}/config/s3.yml"
+      ATTACHED_FILE_OPTIONS[:path] = ':attachment/:id/:style/:basename.:extension'
+      ATTACHED_FILE_OPTIONS[:bucket] = ASSET_S3_BUCKET
+    end
+  end
+  has_attached_file :data, ATTACHED_FILE_OPTIONS
 
   validates_uniqueness_of :handle, :allow_blank => true
 
@@ -17,9 +28,14 @@ class Flogiston::Asset < ActiveRecord::Base
     return unless data.file?
     return if data.dirty?
 
-    File.open(data.path, 'w') do |f|
-      f.print val
-    end
+    tf = Tempfile.new(data_file_name)
+    tf.binmode
+    tf.write(val)
+    tf.rewind
+
+    data.queued_for_write[:original] = tf
+    data.flush_writes
+
     self.data_file_size = val.length
   end
 
@@ -32,6 +48,11 @@ class Flogiston::Asset < ActiveRecord::Base
 
     false
   end
+
+  def s3?
+    data.options.storage == :s3
+  end
+
 
   private
 

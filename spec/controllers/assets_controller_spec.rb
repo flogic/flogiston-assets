@@ -8,6 +8,8 @@ describe AssetsController do
       
       @data = stub('data', :path => 'path/to/file', :content_type => 'content/type')
       @asset.stubs(:data).returns(@data)
+      @asset.stubs(:s3?).returns(false)
+
       Asset.stubs(:find).returns(@asset)
       Asset.stubs(:find_by_handle).returns(nil)
       controller.stubs(:send_file)
@@ -28,10 +30,40 @@ describe AssetsController do
         Asset.expects(:find).with(@asset_id).returns(@asset)
         do_get
       end
-    
-      it 'should render the asset' do
-        controller.expects(:send_file).with(@data.path, :type => @data.content_type, :disposition => 'inline')
-        do_get
+
+      describe 'when the asset is not stored on s3' do
+        before do
+          @asset.stubs(:s3?).returns(false)
+        end
+
+        it 'should render the asset' do
+          controller.expects(:send_file).with(@data.path, :type => @data.content_type, :disposition => 'inline')
+          do_get
+        end
+
+        it 'should not redirect' do
+          do_get
+          response.should be_success
+        end
+      end
+
+      describe 'when the asset is stored on s3' do
+        before do
+          @asset.stubs(:s3?).returns(true)
+
+          @s3_url = 'http://s3.amazonaws.com/some/bucket/stuff/goes/here'
+          @data.stubs(:url).returns(@s3_url)
+        end
+
+        it 'should redirect to the s3 URL' do
+          do_get
+          response.should redirect_to(@s3_url)
+        end
+
+        it 'should not try to render the asset' do
+          controller.expects(:send_file).never
+          do_get
+        end
       end
     end
     
@@ -55,10 +87,40 @@ describe AssetsController do
         Asset.expects(:find).with(@handle).returns(@asset)
         do_get
       end
-    
-      it 'should render the asset' do
-        controller.expects(:send_file).with(@data.path, :type => @data.content_type, :disposition => 'inline')
-        do_get
+
+      describe 'when the asset is not stored on s3' do
+        before do
+          @asset.stubs(:s3?).returns(false)
+        end
+
+        it 'should render the asset' do
+          controller.expects(:send_file).with(@data.path, :type => @data.content_type, :disposition => 'inline')
+          do_get
+        end
+
+        it 'should not redirect' do
+          do_get
+          response.should be_success
+        end
+      end
+
+      describe 'when the asset is stored on s3' do
+        before do
+          @asset.stubs(:s3?).returns(true)
+
+          @s3_url = 'http://s3.amazonaws.com/some/bucket/stuff/goes/here'
+          @data.stubs(:url).returns(@s3_url)
+        end
+
+        it 'should redirect to the s3 URL' do
+          do_get
+          response.should redirect_to(@s3_url)
+        end
+
+        it 'should not try to render the asset' do
+          controller.expects(:send_file).never
+          do_get
+        end
       end
     end
   end
