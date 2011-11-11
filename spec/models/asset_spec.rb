@@ -177,32 +177,85 @@ describe Asset do
     end
 
     describe 'contents' do
-      before do
-        @asset = Asset.new
-        @file_path = File.join(File.dirname(__FILE__), %w[.. spec_helper.rb])
+      describe 'when using filesystem storage' do
+        before do
+          Object.send(:remove_const, :ASSET_STORAGE) if Object.const_defined?(:ASSET_STORAGE)
+          reset_model
+        end
+
+        before do
+          @asset = Asset.new
+          @file_path = File.join(File.dirname(__FILE__), %w[.. spec_helper.rb])
+        end
+
+        after do
+          @asset.destroy
+        end
+
+        it 'should return the contents of the data file' do
+          File.open(@file_path) { |file|  @asset.data = file }
+          @asset.save!
+
+          expected = nil
+          File.open(@file_path) { |file|  expected = file.read }
+
+          @asset.contents.should == expected
+        end
+
+        it 'should return nil for a new record' do
+          File.open(@file_path) { |file|  @asset.data = file }
+
+          @asset.contents.should == nil
+        end
+
+        it 'should return nil for non-file data'
       end
 
-      after do
-        @asset.destroy
+      describe 'when using s3 storage' do
+        before do
+          [:ASSET_STORAGE, :ASSET_S3_BUCKET].each do |const|
+            Object.send(:remove_const, const) if Object.const_defined?(const)
+          end
+
+          Object.const_set(:ASSET_STORAGE, :s3)
+          Object.const_set(:ASSET_S3_BUCKET, 'flogiston-assets-test')
+
+          reset_model
+        end
+
+        after do
+          [:ASSET_STORAGE, :ASSET_S3_BUCKET].each do |const|
+            Object.send(:remove_const, const) if Object.const_defined?(const)
+          end
+        end
+
+        before do
+          @asset = Asset.new
+          @file_path = File.join(File.dirname(__FILE__), %w[.. spec_helper.rb])
+        end
+
+        after do
+          @asset.destroy
+        end
+
+        it 'should return the contents of the data file' do
+          File.open(@file_path) { |file|  @asset.data = file }
+          @asset.save!
+
+          expected = nil
+          File.open(@file_path) { |file|  expected = file.read }
+
+          @asset.contents.should == expected
+        end
+
+        it 'should return nil for a new record' do
+          File.open(@file_path) { |file|  @asset.data = file }
+
+          @asset.contents.should == nil
+        end
+
+        it 'should return nil for non-file data'
       end
-
-      it 'should return the contents of the data file' do
-        File.open(@file_path) { |file|  @asset.data = file }
-        @asset.save!
-
-        expected = nil
-        File.open(@file_path) { |file|  expected = file.read }
-
-        @asset.contents.should == expected
-      end
-
-      it 'should return nil for a new record' do
-        File.open(@file_path) { |file|  @asset.data = file }
-
-        @asset.contents.should == nil
-      end
-
-      it 'should return nil for non-file data'
     end
 
     it "should have a 'contents' setter method" do
